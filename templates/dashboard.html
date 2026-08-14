@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tulpar — Telemetri İzleme</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #0a0e17; color: #e8eef7;
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      padding: 20px; min-height: 100vh;
+    }
+    .ust {
+      display: flex; align-items: center; justify-content: space-between;
+      padding-bottom: 16px; margin-bottom: 20px;
+      border-bottom: 1px solid #1e2b45; flex-wrap: wrap; gap: 12px;
+    }
+    .marka { display: flex; align-items: center; gap: 14px; }
+    .logo {
+      width: 46px; height: 46px; border-radius: 10px; background: #132039;
+      display: flex; align-items: center; justify-content: center; font-size: 24px;
+    }
+    .marka-ad { font-size: 22px; font-weight: 600; letter-spacing: 2px; color: #e8eef7; }
+    .marka-alt { font-size: 11px; letter-spacing: 3px; color: #5a7194; margin-top: 2px; }
+    .ust-sag { display: flex; align-items: center; gap: 12px; }
+    #durum {
+      display: flex; align-items: center; gap: 7px;
+      border-radius: 6px; padding: 7px 13px; font-size: 13px;
+    }
+    #durum .nokta { width: 8px; height: 8px; border-radius: 50%; }
+    .bagli { background: #0d2818; border: 1px solid #1d7a4a; color: #4ade80; }
+    .bagli .nokta { background: #22c55e; }
+    .kesik { background: #2d0a0a; border: 1px solid #7a1d1d; color: #f87171; }
+    .kesik .nokta { background: #ef4444; }
+    #sure { font-size: 13px; color: #5a7194; font-family: 'Consolas', monospace; }
+    .ana-kutular {
+      display: grid; grid-template-columns: 1.4fr 1fr 1fr; gap: 14px; margin-bottom: 14px;
+    }
+    .alt-kutular {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 16px;
+    }
+    @media (max-width: 860px) { .ana-kutular, .alt-kutular { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 560px) { .ana-kutular, .alt-kutular { grid-template-columns: 1fr; } }
+    .kutu {
+      background: #111a2b; border: 1px solid #1e2b45; border-radius: 12px; padding: 18px;
+    }
+    .kutu .baslik { font-size: 11px; letter-spacing: 1.5px; color: #5a7194; margin-bottom: 8px; }
+    .deger-satir { display: flex; align-items: baseline; gap: 7px; }
+    .deger { font-weight: 600; line-height: 1; font-family: 'Consolas', monospace; }
+    .buyuk .deger { font-size: 52px; }
+    .orta  .deger { font-size: 32px; }
+    .kucuk .deger { font-size: 26px; }
+    .birim { font-size: 13px; color: #5a7194; }
+    .not { font-size: 11px; color: #3d5068; margin-top: 9px; }
+    .bar-dis { margin-top: 14px; height: 6px; background: #0a1220; border-radius: 3px; overflow: hidden; }
+    .bar-ic { height: 100%; width: 0%; background: #38bdf8; transition: width .3s; }
+    .grafik-alan {
+      background: #111a2b; border: 1px solid #1e2b45; border-radius: 12px; padding: 18px;
+    }
+    .grafik-ust { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+    .grafik-ust span:first-child { font-size: 11px; letter-spacing: 1.5px; color: #5a7194; }
+    .grafik-ust span:last-child  { font-size: 11px; color: #3d5068; }
+    .bos { color: #3d5068 !important; }
+  </style>
+</head>
+<body>
+  <div class="ust">
+    <div class="marka">
+      <div class="logo">🐎</div>
+      <div>
+        <div class="marka-ad">TULPAR</div>
+        <div class="marka-alt">TELEMETRİ İZLEME MERKEZİ</div>
+      </div>
+    </div>
+    <div class="ust-sag">
+      <div id="durum" class="kesik">
+        <span class="nokta"></span><span id="durum-yazi">Bağlantı bekleniyor</span>
+      </div>
+      <div id="sure">00:00:00</div>
+    </div>
+  </div>
+
+  <div class="ana-kutular">
+    <div class="kutu buyuk">
+      <div class="baslik">HIZ</div>
+      <div class="deger-satir">
+        <span class="deger bos" id="hiz" style="color:#38bdf8">--</span>
+        <span class="birim">km/h</span>
+      </div>
+      <div class="bar-dis"><div class="bar-ic" id="hiz-bar"></div></div>
+    </div>
+    <div class="kutu orta">
+      <div class="baslik">BATARYA SICAKLIK</div>
+      <div class="deger-satir">
+        <span class="deger bos" id="sicaklik" style="color:#4ade80">--</span>
+        <span class="birim">°C</span>
+      </div>
+      <div class="not">en yüksek hücre</div>
+    </div>
+    <div class="kutu orta">
+      <div class="baslik">BATARYA GERİLİM</div>
+      <div class="deger-satir">
+        <span class="deger bos" id="gerilim" style="color:#a78bfa">--</span>
+        <span class="birim">V</span>
+      </div>
+      <div class="not">toplam paket</div>
+    </div>
+  </div>
+
+  <div class="alt-kutular">
+    <div class="kutu kucuk">
+      <div class="baslik">KALAN ENERJİ</div>
+      <div class="deger-satir">
+        <span class="deger bos" id="enerji" style="color:#fbbf24">--</span>
+        <span class="birim">Wh</span>
+      </div>
+    </div>
+    <div class="kutu kucuk">
+      <div class="baslik">ALINAN PAKET</div>
+      <div class="deger-satir">
+        <span class="deger" id="paket" style="color:#e8eef7">0</span>
+        <span class="birim">adet</span>
+      </div>
+    </div>
+    <div class="kutu kucuk">
+      <div class="baslik">SON VERİDEN BU YANA</div>
+      <div class="deger-satir">
+        <span class="deger" id="kesinti" style="color:#4ade80">0</span>
+        <span class="birim">sn</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="grafik-alan">
+    <div class="grafik-ust">
+      <span>HIZ GRAFİĞİ</span>
+      <span id="grafik-not">son 60 örnek</span>
+    </div>
+    <canvas id="hizGrafik" height="90"></canvas>
+  </div>
+
+  <script>
+    const durumKutu = document.getElementById('durum');
+    const durumYazi = document.getElementById('durum-yazi');
+    let paketSayisi = 0, sonVeriZamani = null, ilkVeriZamani = null;
+
+    const ctx = document.getElementById('hizGrafik').getContext('2d');
+    const grafik = new Chart(ctx, {
+      type: 'line',
+      data: { labels: [], datasets: [{
+        label: 'Hız', data: [],
+        borderColor: '#38bdf8', backgroundColor: 'rgba(56,189,248,0.08)',
+        borderWidth: 2, tension: 0.35, pointRadius: 0, fill: true, spanGaps: false
+      }]},
+      options: {
+        responsive: true, animation: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { ticks: { color: '#3d5068', maxTicksLimit: 8 }, grid: { color: '#182338' } },
+          y: { ticks: { color: '#3d5068' }, grid: { color: '#182338' }, min: 0 }
+        }
+      }
+    });
+
+    function goster(id, deger, basamak, renk) {
+      const el = document.getElementById(id);
+      if (deger === null || deger === undefined || isNaN(deger)) {
+        el.textContent = '--'; el.classList.add('bos'); el.style.color = '';
+      } else {
+        el.textContent = parseFloat(deger).toFixed(basamak);
+        el.classList.remove('bos'); el.style.color = renk;
+      }
+    }
+    function sureBicimle(sn) {
+      const s = Math.floor(sn % 60), d = Math.floor((sn/60)%60), sa = Math.floor(sn/3600);
+      return [sa,d,s].map(x => String(x).padStart(2,'0')).join(':');
+    }
+    setInterval(() => {
+      if (ilkVeriZamani !== null)
+        document.getElementById('sure').textContent = sureBicimle((Date.now()-ilkVeriZamani)/1000);
+      if (sonVeriZamani !== null) {
+        const gecen = Math.floor((Date.now()-sonVeriZamani)/1000);
+        const el = document.getElementById('kesinti');
+        el.textContent = gecen;
+        el.style.color = gecen > 60 ? '#ef4444' : gecen > 5 ? '#fbbf24' : '#4ade80';
+      }
+    }, 500);
+
+    const ws = new WebSocket(`ws://${location.host}/ws/telemetri/`);
+    ws.onopen  = () => { durumKutu.className='bagli'; durumYazi.textContent='Bağlı — veri alınıyor'; };
+    ws.onclose = () => { durumKutu.className='kesik'; durumYazi.textContent='Bağlantı kesildi'; };
+    ws.onerror = () => { durumKutu.className='kesik'; durumYazi.textContent='Bağlantı hatası'; };
+
+    ws.onmessage = (e) => {
+      const d = JSON.parse(e.data);
+      paketSayisi++; sonVeriZamani = Date.now();
+      if (ilkVeriZamani === null) ilkVeriZamani = Date.now();
+      document.getElementById('paket').textContent = paketSayisi;
+
+      goster('hiz',     d.hiz_kmh,      1, '#38bdf8');
+      goster('gerilim', d.V_bat_V,      1, '#a78bfa');
+      goster('enerji',  d.kalan_enerji, 0, '#fbbf24');
+
+      const s = d.T_bat_C;
+      const sRenk = (s===null||s===undefined) ? '#4ade80'
+                  : s>=55 ? '#ef4444' : s>=45 ? '#fbbf24' : '#4ade80';
+      goster('sicaklik', s, 1, sRenk);
+
+      const h = (d.hiz_kmh===null||d.hiz_kmh===undefined) ? 0 : d.hiz_kmh;
+      const bar = document.getElementById('hiz-bar');
+      bar.style.width = Math.min(h/120,1)*100 + '%';
+      bar.style.background = h>=100 ? '#ef4444' : h>=80 ? '#fbbf24' : '#38bdf8';
+
+      grafik.data.labels.push((d.zaman_ms/1000).toFixed(0)+'s');
+      grafik.data.datasets[0].data.push(
+        d.hiz_kmh===null||d.hiz_kmh===undefined ? NaN : d.hiz_kmh);
+      if (grafik.data.labels.length > 60) {
+        grafik.data.labels.shift();
+        grafik.data.datasets[0].data.shift();
+      }
+      grafik.update('none');
+    };
+  </script>
+</body>
+</html>

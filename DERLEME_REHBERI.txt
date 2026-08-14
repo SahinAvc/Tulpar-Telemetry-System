@@ -1,0 +1,90 @@
+# TULPAR TELEMETRI — Uygulama Derleme Rehberi
+
+Bu rehber, projeyi cift tiklanabilir bir uygulamaya (.exe / .app)
+donusturmeyi anlatir. Karsi taraf Python bilmeden, sadece uygulamayi
+acip anteni takarak kullanir.
+
+ONEMLI: Windows uygulamasi Windows'ta, Mac uygulamasi Mac'te uretilir.
+Tek makinede iki platform icin birden uretilemez.
+
+
+================================================================
+  WINDOWS'TA .EXE URETMEK
+================================================================
+
+1. Proje klasorunde komut istemi (cmd) ac.
+
+2. Sanal ortami olustur ve kutuphaneleri kur:
+
+     python -m venv venv
+     venv\Scripts\activate
+     pip install -r requirements.txt
+
+3. Uygulamayi once test et (pencere aciliyor mu):
+
+     python app.py
+
+   Dashboard kendi penceresinde acilmali. Kapatip devam et.
+
+4. .exe'yi uret:
+
+     pyinstaller TulparTelemetri.spec
+
+5. Bitince su dosya olusur:
+
+     dist\TulparTelemetri.exe
+
+   Bu TEK dosyayi kime verirsen o kisi cift tiklar, calisir.
+   Python, pip, terminal GEREKMEZ.
+
+
+================================================================
+  MAC'TE .APP URETMEK
+================================================================
+
+1. Proje klasorunde Terminal ac.
+
+2. Sanal ortami olustur ve kutuphaneleri kur:
+
+     python3 -m venv venv
+     source venv/bin/activate
+     pip install -r requirements.txt
+
+3. Uygulamayi once test et:
+
+     python3 app.py
+
+4. .app'i uret:
+
+     pyinstaller TulparTelemetri.spec
+
+5. Bitince su olusur:
+
+     dist/TulparTelemetri.app
+
+   Bu paketi Mac kullanicilarina verirsin. Uygulamalar klasorune
+   surukleyip acabilirler.
+
+   NOT: Mac ilk acilista "gelistirici dogrulanamadi" diyebilir.
+   Kullanici .app'e sag tikla -> Ac -> tekrar Ac der. Bir kez.
+
+
+================================================================
+  ANTEN (GROUND MODULE) TAKMA
+================================================================
+
+Uygulama ground module'u otomatik bulur.
+- Windows'ta genelde COM5, COM6...
+- Mac'te /dev/tty.usbserial-XXXX
+
+Otomatik bulamazsa, uygulama loglarinda "port bulunamadi" yazar.
+Bu durumda dogru portu elle vermek gerekebilir (gelistirici notu).
+
+
+================================================================
+  DOSYA BOYUTU
+================================================================
+
+Uretilen uygulama ~150-200 MB olur (Django + Daphne + Twisted
+paketin icine gomuldugu icin). Bu normaldir. Tek dosya oldugu
+icin dagitmasi kolaydir (USB, WeTransfer, Google Drive).

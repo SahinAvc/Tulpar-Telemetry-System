@@ -1,0 +1,7 @@
+Django>=5.0
+djangorestframework
+channels
+daphne
+pyserial
+pywebview
+pyinstaller

@@ -1,0 +1,32 @@
+# ── Python ───────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.egg-info/
+.Python
+
+# ── Sanal ortam (herkes kendi kurar) ─────────────────────
+venv/
+env/
+.venv/
+
+# ── PyInstaller derleme ciktilari (herkes kendi derler) ──
+build/
+dist/
+*.spec.bak
+
+# ── Django veritabani ve kayitlar ────────────────────────
+db.sqlite3
+db.sqlite3-journal
+kayitlar/
+*.csv
+
+# ── Ortam degiskenleri / gizli anahtarlar ────────────────
+.env
+*.secret
+
+# ── Isletim sistemi / editor ─────────────────────────────
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
