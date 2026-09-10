@@ -75,12 +75,6 @@ COM portunu otomatik bulur. Bulamazsa `--port` ile elle belirtilebilir:
 python manage.py lora_dinle --port COM5
 ```
 
-## Güvenlik Notu
-
-Bu depoyu **public'e almadan önce** `izleme/settings.py` içindeki
-`SECRET_KEY` değerini yenileyin ve `DEBUG = False` yapın. Geliştirme
-anahtarı üretim ortamında kullanılmamalıdır.
-
 ## Lisans
 
 Bu proje ekip içi kullanım içindir. Tüm hakları saklıdır.
